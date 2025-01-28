@@ -1,24 +1,24 @@
 from datetime import datetime
 
-from pydantic import Basemodel
+from pydantic import BaseModel
 
 from ticket_manager.models import TicketState
 
 
-class UserManager(Basemodel):
+class UserManager(BaseModel):
     id: int
     username: str
     password: str
 
 
-class Client(Basemodel):
+class Client(BaseModel):
     id: int
     name: str
     company_name: str | None
     phone: str | None
 
 
-class Ticket(Basemodel):
+class Ticket(BaseModel):
     id: int
     author: UserManager
     client: Client
@@ -29,5 +29,5 @@ class Ticket(Basemodel):
     resolved_at: datetime | None = None
 
 
-class TicketList(Basemodel):
+class TicketList(BaseModel):
     ticket_list: list[Ticket]
