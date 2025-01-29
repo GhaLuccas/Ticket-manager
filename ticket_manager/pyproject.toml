@@ -41,7 +41,7 @@ lint = "ruff check . && ruff check . --diff"
 format = "ruff check . --fix"
 run = "uvicorn ticket_manager.app:app --reload"
 pre_test = "task lint"
-test = "pytest -s -x --cov=fast_zero -vv"
+test = "pytest -s -x --cov=ticket_manager -vv"
 post_test = "coverage html"
 
 

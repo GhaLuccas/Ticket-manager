@@ -1,0 +1,3 @@
+- usar o factory boy nos testes , por ex usar ele no  list_all_users pra criar varios users 
+
+- estudar o sqlalchemy 

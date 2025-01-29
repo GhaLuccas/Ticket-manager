@@ -6,20 +6,17 @@ from ticket_manager.models import TicketState
 
 
 class UserManager(BaseModel):
-    id: int
     username: str
     password: str
 
 
 class Client(BaseModel):
-    id: int
     name: str
     company_name: str | None
     phone: str | None
 
 
 class Ticket(BaseModel):
-    id: int
     author: UserManager
     client: Client
     problem: str
