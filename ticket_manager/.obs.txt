@@ -1,3 +1,10 @@
 - usar o factory boy nos testes , por ex usar ele no  list_all_users pra criar varios users 
 
-- estudar o sqlalchemy 
+- estudar o sqlalchemy (
+    mudanças no env dentro da pasta alembic {
+        "porque do metadata / target_metadata = mapper_registry.metadata"
+        "porque disso / config.set_main_option('sqlalchemy.url', Settings().DATABASE_URL)"
+        " poetry run alembic revision --autogenerate -m "não sei o que isso vai fazer"
+        }
+
+)
