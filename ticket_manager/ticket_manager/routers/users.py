@@ -12,6 +12,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 users_router = APIRouter(prefix='/users', tags=['users'])
 
+
 # OK
 @users_router.post('/', status_code=201)
 def create_user(user: UserManager, session: SessionDep):

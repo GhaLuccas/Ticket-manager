@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from ticket_manager.models import TicketState
 
@@ -12,8 +12,8 @@ class UserManager(BaseModel):
 
 class Client(BaseModel):
     name: str
-    company_name: str | None
-    phone: str | None
+    company: str | None = Field(default="Não cadastrado")
+    phone: str | None = Field(default="Não cadastrado")
 
 
 class Ticket(BaseModel):
