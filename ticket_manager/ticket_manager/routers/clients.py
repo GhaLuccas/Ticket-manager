@@ -8,7 +8,7 @@ from ticket_manager.schema import Client
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
-clients_router = APIRouter(prefix='clients', tags=['clients'])
+clients_router = APIRouter(prefix='/clients', tags=['clients'])
 
 
 @clients_router.post('/', status_code=201)
