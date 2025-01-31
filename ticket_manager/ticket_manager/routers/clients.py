@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends , HTTPException
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -42,3 +42,16 @@ def search_clients(session: SessionDep, search_term: str):
     )
     clients = session.scalars(query).all()
     return clients
+
+
+@clients_router.delete('/{client_id}', status_code=204)
+def delete_client(session: SessionDep, client_id: int):
+    client = session.get(Client, client_id)
+    
+    if client is None:
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+    
+    session.delete(client)
+    session.commit()
+    
+    return ''
