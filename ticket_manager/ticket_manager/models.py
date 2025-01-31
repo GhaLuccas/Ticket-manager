@@ -41,8 +41,8 @@ class Client:
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     name: Mapped[str] = mapped_column(unique=False)
-    company_name: Mapped[str] = mapped_column(unique=True)
-    phone: Mapped[str] = mapped_column(unique=True)
+    company_name: Mapped[str] = mapped_column(unique=False)
+    phone: Mapped[str] = mapped_column(unique=False)
 
     tickets: Mapped[List["Ticket"]] = relationship(
         back_populates="client", init=False

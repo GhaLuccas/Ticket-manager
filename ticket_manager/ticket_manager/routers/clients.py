@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from ticket_manager.database import get_session
@@ -29,3 +30,15 @@ def create_client(client: ClientSchema, session: SessionDep):
     session.refresh(client_model)
 
     return client_model
+
+
+@clients_router.get('/', status_code=200)
+def search_clients(session: SessionDep, search_term: str):
+    query = select(Client).where(
+        or_(
+            Client.name.ilike(f"%{search_term}%"),
+            Client.company_name.ilike(f"%{search_term}%")
+        )
+    )
+    clients = session.scalars(query).all()
+    return clients

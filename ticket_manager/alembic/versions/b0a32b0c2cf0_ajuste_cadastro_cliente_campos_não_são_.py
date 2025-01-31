@@ -1,8 +1,8 @@
-"""initial migration
+"""ajuste cadastro cliente , campos não são mais unique
 
-Revision ID: f26d35767aa2
+Revision ID: b0a32b0c2cf0
 Revises: 
-Create Date: 2025-01-31 10:13:02.894744
+Create Date: 2025-01-31 11:59:30.203061
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f26d35767aa2'
+revision: str = 'b0a32b0c2cf0'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,9 +25,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('company_name', sa.String(), nullable=False),
     sa.Column('phone', sa.String(), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('company_name'),
-    sa.UniqueConstraint('phone')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_index('idx_company_name', 'clients', ['company_name'], unique=False)
     op.create_table('managers',
