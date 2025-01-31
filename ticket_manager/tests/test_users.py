@@ -8,8 +8,9 @@ def test_hello(client):
 
 def test_create_user(client):
     response = client.post(
-        "/",
+        "/users",
         json={"username": "alice", "password": "secret"},
     )
-    print(response.json())  # Debugging output
+    print(response.status_code)
+    print(response.json())
     assert response.status_code == HTTPStatus.CREATED

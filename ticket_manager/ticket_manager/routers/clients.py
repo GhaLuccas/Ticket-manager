@@ -14,7 +14,7 @@ clients_router = APIRouter(prefix='/clients', tags=['clients'])
 
 @clients_router.post('/', status_code=201)
 def create_client(client: ClientSchema, session: SessionDep):
-    company = client.company if client.company else "Não cadastrado"
+    company = client.company_name if client.company_name else "Não cadastrado"
     phone = client.phone if client.phone else "Não cadastrado"
 
     client_model = Client(

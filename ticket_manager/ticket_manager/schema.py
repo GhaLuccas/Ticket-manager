@@ -12,7 +12,7 @@ class UserManagerSchema(BaseModel):
 
 class ClientSchema(BaseModel):
     name: str
-    company: str | None = Field(default="Não cadastrado")
+    company_name: str | None = Field(default="Não cadastrado")
     phone: str | None = Field(default="Não cadastrado")
 
 

@@ -26,6 +26,7 @@ ruff = "^0.9.3"
 sqlalchemy = "^2.0.37"
 uvicorn = "^0.34.0"
 alembic = "^1.14.1"
+httpx = "^0.28.1"
 
 [tool.ruff]
 line-length = 79
