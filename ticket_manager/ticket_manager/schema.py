@@ -12,8 +12,8 @@ class UserManagerSchema(BaseModel):
 
 class ClientSchema(BaseModel):
     name: str
-    company_name: str | None = Field(default="Não cadastrado")
-    phone: str | None = Field(default="Não cadastrado")
+    company_name: str | None = Field(default=None)
+    phone: str | None = Field(default=None)
 
 
 class TicketSchema(BaseModel):
