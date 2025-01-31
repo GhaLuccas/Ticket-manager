@@ -5,20 +5,20 @@ from pydantic import BaseModel, Field
 from ticket_manager.models import TicketState
 
 
-class UserManager(BaseModel):
+class UserManagerSchema(BaseModel):
     username: str
     password: str
 
 
-class Client(BaseModel):
+class ClientSchema(BaseModel):
     name: str
     company: str | None = Field(default="Não cadastrado")
     phone: str | None = Field(default="Não cadastrado")
 
 
-class Ticket(BaseModel):
-    author: UserManager
-    client: Client
+class TicketSchema(BaseModel):
+    author: UserManagerSchema
+    client: ClientSchema
     problem: str
     solution: str | None
     state: TicketState
@@ -26,5 +26,5 @@ class Ticket(BaseModel):
     resolved_at: datetime | None = None
 
 
-class TicketList(BaseModel):
-    ticket_list: list[Ticket]
+class TicketListSchema(BaseModel):
+    ticket_list: list[TicketSchema]
