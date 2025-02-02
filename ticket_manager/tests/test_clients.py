@@ -5,7 +5,7 @@ from ticket_manager.models import Client
 
 def test_create_client(client):
     payload = {
-        "name": "João",
+        "name": "Alice",
         "company_name": "TechCorp",
         "phone": "123456789"
         }
@@ -59,6 +59,17 @@ def test_search_clients(client, session):
     data = response.json()
     assert len(data) == 1
     assert data[0]["company_name"] == "AlphaTech"
+
+
+def test_search_clients_notfound(client, session):
+    session.add_all([
+        Client(name="Alice", company_name="AlphaTech", phone=''),
+        Client(name="Bob", company_name="BetaTech", phone=''),
+    ])
+    session.commit()
+
+    response = client.get("/clients/?search_term=gothgirl")
+    assert response.status_code == HTTPStatus.NOT_FOUND
 
 
 def test_delete_client(client, session):
