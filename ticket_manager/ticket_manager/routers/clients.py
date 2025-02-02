@@ -35,7 +35,9 @@ def update_client(
     existing_client = session.get(Client, client_id)
 
     if not existing_client:
-        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+        raise HTTPException(
+            status_code=404,
+            detail="Cliente não encontrado")
 
     existing_client.name = client.name or existing_client.name
     existing_client.company_name = (

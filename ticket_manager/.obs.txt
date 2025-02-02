@@ -2,9 +2,9 @@
 
 - estudar o sqlalchemy (
     mudanças no env dentro da pasta alembic {
-        "porque do metadata / target_metadata = mapper_registry.metadata"
-        "porque disso / config.set_main_option('sqlalchemy.url', Settings().DATABASE_URL)"
-        " poetry run alembic revision --autogenerate -m "não sei o que isso vai fazer"
+        "porque do metadata / target_metadata = mapper_registry.metadata",
+        "porque disso / config.set_main_option('sqlalchemy.url', Settings().DATABASE_URL)",
+        " poetry run alembic revision --autogenerate -m "não sei o que isso vai fazer",
+        "refazer os models e os schemas,
         }
-
 )

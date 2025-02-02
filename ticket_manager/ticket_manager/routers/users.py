@@ -1,6 +1,7 @@
-from typing import Annotated
+from typing import Annotated, List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ticket_manager.database import get_session
@@ -9,19 +10,50 @@ from ticket_manager.schema import UserManagerSchema
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
-
 users_router = APIRouter(prefix='/users', tags=['users'])
 
 
-# OK
 @users_router.post('/', status_code=201)
 def create_user(user: UserManagerSchema, session: SessionDep):
+    existing_user = session.query(Manager).filter(
+        Manager.username == user.username).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already taken")
 
-    user_manager = Manager(
-        username=user.username,
-        password=user.password,
-    )
-    session.add(user_manager)
+    try:
+        # Cria o novo usuário
+        user_manager = Manager(
+            username=user.username,
+            password=user.password,
+        )
+        session.add(user_manager)
+        session.commit()
+        session.refresh(user_manager)
+        return user_manager
+    except IntegrityError:
+        # Caso ocorra algum erro de integridade (ex: username já existente)
+        session.rollback()
+        raise HTTPException(status_code=400, detail="Username already taken")
+
+
+@users_router.get('/', response_model=List[UserManagerSchema])
+def get_users(session: SessionDep):
+    users = session.query(Manager).all()
+    return users
+
+
+@users_router.get('/{user_id}', response_model=UserManagerSchema)
+def get_user(user_id: int, session: SessionDep):
+    user = session.query(Manager).filter(Manager.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@users_router.delete('/{user_id}', status_code=204)
+def delete_user(user_id: int, session: SessionDep):
+    user = session.query(Manager).filter(Manager.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    session.delete(user)
     session.commit()
-    session.refresh(user_manager)
-    return user_manager
