@@ -31,7 +31,6 @@ def test_create_user_success(client, session):
     assert response.status_code == HTTPStatus.CREATED
     data = response.json()
     assert data["username"] == payload["username"]
-    assert data["password"] == payload["password"]
 
 
 def test_create_user_missing_field(client):
@@ -52,10 +51,8 @@ def test_get_users(client, session):
     response = client.get("/users/")
     assert response.status_code == HTTPStatus.OK
     data = response.json()
-    len_should_be = 2
-    assert len(data) == len_should_be
-    assert data[0]["username"] == "alice123"
-    assert data[1]["username"] == "bob456"
+    assert data['userlist'][0]["username"] == "alice123"
+    assert data['userlist'][1]["username"] == "bob456"
 
 
 def test_get_user(client, session):

@@ -17,7 +17,11 @@ SessionDep = Annotated[Session, Depends(get_session)]
 users_router = APIRouter(prefix='/users', tags=['users'])
 
 
-@users_router.post('/', status_code=201)
+@users_router.post(
+    '/',
+    status_code=201,
+    response_model=UserPublicSchema
+    )
 def create_user(user: UserManagerSchema, session: SessionDep):
     existing_user = session.query(Manager).filter(
         Manager.username == user.username).first()
@@ -32,7 +36,7 @@ def create_user(user: UserManagerSchema, session: SessionDep):
         session.add(user_manager)
         session.commit()
         session.refresh(user_manager)
-        return user_manager
+        return {'id': user_manager.id, 'username': user_manager.username}
     except IntegrityError:
         session.rollback()
         raise HTTPException(status_code=400, detail="Username already taken")
@@ -46,7 +50,7 @@ def get_users(session: SessionDep):
     users = session.query(Manager).all()
     return {
         'userlist': [
-            {'id': user.id ,'username': user.username} for user in users]}
+            {'id': user.id, 'username': user.username} for user in users]}
 
 
 @users_router.get(

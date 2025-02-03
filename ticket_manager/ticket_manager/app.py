@@ -12,8 +12,3 @@ app.include_router(clients.clients_router)
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
-
-
-@app.get('/')
-def hello():
-    return {'message': 'hello :)'}
