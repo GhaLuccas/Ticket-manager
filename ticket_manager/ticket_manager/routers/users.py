@@ -25,7 +25,6 @@ def create_user(user: UserManagerSchema, session: SessionDep):
         raise HTTPException(status_code=400, detail="Username already taken")
 
     try:
-
         user_manager = Manager(
             username=user.username,
             password=user.password,
@@ -44,8 +43,10 @@ def create_user(user: UserManagerSchema, session: SessionDep):
     response_model=UserListPublicShema,
     status_code=200)
 def get_users(session: SessionDep):
-    users = session.query(Manager.username).all()
-    return {'userlist': [{'username': user.username} for user in users]}
+    users = session.query(Manager).all()
+    return {
+        'userlist': [
+            {'id': user.id ,'username': user.username} for user in users]}
 
 
 @users_router.get(
@@ -56,7 +57,7 @@ def get_user(user_id: int, session: SessionDep):
     user = session.query(Manager).filter(Manager.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {'username': user.username}
+    return {'username': user.username, 'id': user.id}
 
 
 @users_router.delete('/{user_id}', status_code=204)

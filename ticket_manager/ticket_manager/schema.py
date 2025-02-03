@@ -11,6 +11,7 @@ class UserManagerSchema(BaseModel):
 
 
 class UserPublicSchema(BaseModel):
+    id: int
     username: str
 
 
