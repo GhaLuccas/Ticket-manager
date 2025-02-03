@@ -1,10 +1,12 @@
-- usar o factory boy nos testes , por ex usar ele no  list_all_users pra criar varios users 
+Usar o Factory Boy nos testes
+- Utilizar o Factory Boy para gerar múltiplos usuários no teste list_all_users.
 
-- estudar o sqlalchemy (
-    mudanças no env dentro da pasta alembic {
-        "porque do metadata / target_metadata = mapper_registry.metadata",
-        "porque disso / config.set_main_option('sqlalchemy.url', Settings().DATABASE_URL)",
-        " poetry run alembic revision --autogenerate -m "não sei o que isso vai fazer",
-        "refazer os models e os schemas,
-        }
-)
+Estudar SQLAlchemy e Alembic
+- Estudar essas ferramentas pra criar models e relacionamentos funcionais
+- conseguir entender essa parte de models com clareza e o uso da 
+    session , engine , current users entre outros 
+
+
+Refatoração de código (Clientes e Usuários)
+- Refatorei os modelos de clientes e usuários, mas percebi que novas técnicas de DRY podem ser aplicadas.
+- Criar funções para evitar repetição de código em routers de clientes e users.

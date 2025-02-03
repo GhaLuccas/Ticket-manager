@@ -52,7 +52,7 @@ def get_cllient(client_id: int, session: SessionDep):
     else:        
         raise HTTPException(
             status_code=404,
-            detail="Cliente não encontrado")
+            detail="Cliente não foi encontrado")
 
 
 @clients_router.put(
