@@ -10,6 +10,14 @@ class UserManagerSchema(BaseModel):
     password: str
 
 
+class UserPublicSchema(BaseModel):
+    username: str
+
+
+class UserListPublicShema(BaseModel):
+    userlist: list[UserPublicSchema]
+
+
 class ClientSchema(BaseModel):
     name: str
     company_name: str | None = Field(default=None)
