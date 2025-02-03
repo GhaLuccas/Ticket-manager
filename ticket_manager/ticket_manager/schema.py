@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ticket_manager.models import TicketState
 
@@ -23,6 +23,15 @@ class ClientSchema(BaseModel):
     name: str
     company_name: str | None = Field(default=None)
     phone: str | None = Field(default=None)
+
+
+class ClientPublicShcema(ClientSchema):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ClientList(BaseModel):
+    clientlist: list[ClientPublicShcema]
 
 
 class TicketSchema(BaseModel):
