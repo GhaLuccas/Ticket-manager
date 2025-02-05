@@ -31,7 +31,7 @@ def create_client(client: ClientSchema, session: SessionDep):
         "id": new_client.id,
         "name": new_client.name,
         "company_name": new_client.company_name,
-        "phone": new_client.company_name
+        "phone": new_client.phone
             }
 
 
@@ -47,9 +47,9 @@ def get_cllient(client_id: int, session: SessionDep):
             "id": client_query.id,
             "name": client_query.name,
             "company_name": client_query.company_name,
-            "phone": client_query.company_name
+            "phone": client_query.phone
                 }
-    else:        
+    else:
         raise HTTPException(
             status_code=404,
             detail="Cliente não foi encontrado")
@@ -84,7 +84,7 @@ def update_client(
     return {
         "name": existing_client.name,
         "company_name": existing_client.company_name,
-        "phone": existing_client.company_name
+        "phone": existing_client.phone
             }
 
 

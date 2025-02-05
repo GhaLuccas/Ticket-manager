@@ -58,7 +58,23 @@ def test_search_clients(client, session):
     assert response.status_code == HTTPStatus.OK
     data = response.json()
     assert len(data) == 1
-    assert data[0]["company_name"] == "AlphaTech"
+    assert data['clientlist'][0]["company_name"] == "AlphaTech"
+
+
+def test_search_clients_all(client, session):
+    session.add_all([
+        Client(name="Alice", company_name="AlphaTech", phone=''),
+        Client(name="Bob", company_name="BetaTech", phone=''),
+        Client(name="GothGirl", company_name="DadIssue", phone='666'),
+    ])
+    session.commit()
+
+    response = client.get("/clients/?search_term=")
+    assert response.status_code == HTTPStatus.OK
+    data = response.json()
+    len_should_be = 3
+    assert len(data['clientlist']) == len_should_be
+    assert data['clientlist'][2]["name"] == "GothGirl"
 
 
 def test_search_clients_notfound(client, session):
