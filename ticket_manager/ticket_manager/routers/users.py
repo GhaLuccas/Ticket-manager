@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException , Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -11,11 +11,20 @@ from ticket_manager.schema import (
     UserManagerSchema,
     UserPublicSchema,
 )
+from ticket_manager.security import get_current_user
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
+
 users_router = APIRouter(prefix='/users', tags=['users'])
 
+
+@users_router.get(
+    '/me', 
+    response_model=UserPublicSchema)
+def me_myself_and_i(
+    user=Depends(get_current_user)):
+    return user
 
 @users_router.post(
     '/',
@@ -40,6 +49,18 @@ def create_user(user: UserManagerSchema, session: SessionDep):
     except IntegrityError:
         session.rollback()
         raise HTTPException(status_code=400, detail="Username already taken")
+
+
+
+@users_router.post('/login')
+def user_login(user : UserManagerSchema , session:SessionDep , response: Response):
+
+    user = session.query(Manager).filter(Manager.username == user.username).first()
+    if not user:
+         raise HTTPException(status_code=400, detail="Invalid credentials")
+    response.set_cookie(key='user_id' , value=str(user.id) , httponly=True)
+    return {"message": "Logged in"}
+    
 
 
 @users_router.get(
