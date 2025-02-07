@@ -1,14 +1,15 @@
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import or_, select
-from sqlalchemy.orm import Session
 
-from ticket_manager.database import get_session
+from ticket_manager.database import session_db
 from ticket_manager.models import Client
 from ticket_manager.schema import ClientList, ClientPublicShcema, ClientSchema
-
-SessionDep = Annotated[Session, Depends(get_session)]
+from ticket_manager.services.clients_services import (
+    get_client_by_id,
+    parse_client,
+    parse_client_public,
+)
 
 clients_router = APIRouter(prefix='/clients', tags=['clients'])
 
@@ -18,7 +19,7 @@ clients_router = APIRouter(prefix='/clients', tags=['clients'])
     status_code=201,
     response_model=ClientPublicShcema
     )
-def create_client(client: ClientSchema, session: SessionDep):
+def create_client(client: ClientSchema, session: session_db):
     new_client = Client(
         name=client.name,
         company_name=client.company_name or "Não cadastrado",
@@ -27,12 +28,10 @@ def create_client(client: ClientSchema, session: SessionDep):
     session.add(new_client)
     session.commit()
     session.refresh(new_client)
-    return {
-        "id": new_client.id,
-        "name": new_client.name,
-        "company_name": new_client.company_name,
-        "phone": new_client.phone
-            }
+
+    new_parse_client = parse_client_public(new_client)
+
+    return new_parse_client
 
 
 @clients_router.get(
@@ -40,19 +39,10 @@ def create_client(client: ClientSchema, session: SessionDep):
     status_code=200,
     response_model=ClientPublicShcema,
     )
-def get_cllient(client_id: int, session: SessionDep):
-    client_query = session.get(Client, client_id)
-    if client_query:
-        return {
-            "id": client_query.id,
-            "name": client_query.name,
-            "company_name": client_query.company_name,
-            "phone": client_query.phone
-                }
-    else:
-        raise HTTPException(
-            status_code=404,
-            detail="Cliente não foi encontrado")
+def get_client(client_id: int, session: session_db):
+    client_query = get_client_by_id(session, client_id)
+    parse_client = parse_client_public(client_query)
+    return parse_client
 
 
 @clients_router.put(
@@ -63,14 +53,9 @@ def get_cllient(client_id: int, session: SessionDep):
 def update_client(
     client_id: int,
     client: ClientSchema,
-    session: SessionDep,
+    session: session_db,
 ):
     existing_client = session.get(Client, client_id)
-
-    if not existing_client:
-        raise HTTPException(
-            status_code=404,
-            detail="Cliente não encontrado")
 
     existing_client.name = client.name or existing_client.name
     existing_client.company_name = (
@@ -81,11 +66,9 @@ def update_client(
     session.commit()
     session.refresh(existing_client)
 
-    return {
-        "name": existing_client.name,
-        "company_name": existing_client.company_name,
-        "phone": existing_client.phone
-            }
+    updated_parse_client = parse_client(existing_client)
+
+    return updated_parse_client
 
 
 @clients_router.get(
@@ -93,7 +76,7 @@ def update_client(
     status_code=200,
     response_model=ClientList
     )
-def search_clients(session: SessionDep, search_term: str | None = None):
+def search_clients(session: session_db, search_term: str | None = None):
 
     if search_term:
         query = select(Client).where(
@@ -120,11 +103,7 @@ def search_clients(session: SessionDep, search_term: str | None = None):
 
 
 @clients_router.delete('/{client_id}', status_code=204)
-def delete_client(session: SessionDep, client_id: int):
+def delete_client(session: session_db, client_id: int):
     client = session.get(Client, client_id)
-
-    if client is None:
-        raise HTTPException(status_code=404, detail="Cliente não encontrado")
-
     session.delete(client)
     session.commit()
