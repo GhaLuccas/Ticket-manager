@@ -9,8 +9,9 @@ from ticket_manager.schema import (
     UserManagerSchema,
     UserPublicSchema,
 )
+from ticket_manager.security import hash_password
 from ticket_manager.services.users_services import get_user_by_id, user_exist
-from ticket_manager.security import verify_password , hash_password
+
 users_router = APIRouter(prefix='/users', tags=['users'])
 
 
@@ -26,7 +27,7 @@ def create_user(user: UserManagerSchema, session: session_db):
     try:
         new_user = Manager(
             username=new_user.username,
-            password= hash_password(new_user.password),
+            password=hash_password(new_user.password),
         )
         session.add(new_user)
         session.commit()
