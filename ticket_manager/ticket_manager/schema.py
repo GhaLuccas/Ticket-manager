@@ -46,3 +46,8 @@ class TicketSchema(BaseModel):
 
 class TicketListSchema(BaseModel):
     ticket_list: list[TicketSchema]
+
+
+class Token(BaseModel):
+    acces_token = str
+    token_type: str

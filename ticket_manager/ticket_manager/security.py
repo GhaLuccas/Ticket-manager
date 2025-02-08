@@ -1,13 +1,13 @@
-from typing import Annotated
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
-from fastapi import Depends
+from jwt import encode
 from pwdlib import PasswordHash
-from sqlalchemy.orm import Session
 
-from ticket_manager.database import get_session
+from ticket_manager.settings import Settings
 
-SessionDep = Annotated[Session, Depends(get_session)]
 pwd_hash = PasswordHash.recommended()
+settings = Settings()
 
 
 def hash_password(pwd: str):
@@ -16,3 +16,15 @@ def hash_password(pwd: str):
 
 def verify_password(clean_pwd: str, hash_pwd: str) -> bool:
     return pwd_hash.verify(clean_pwd, hash_pwd)
+
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    to_encode.update({'exp': expire})
+    encoded_jwt = encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
+    return encoded_jwt
