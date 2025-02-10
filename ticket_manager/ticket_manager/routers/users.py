@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 
 from ticket_manager.database import session_db
@@ -9,7 +9,7 @@ from ticket_manager.schema import (
     UserManagerSchema,
     UserPublicSchema,
 )
-from ticket_manager.security import hash_password
+from ticket_manager.security import get_current_user, hash_password
 from ticket_manager.services.users_services import get_user_by_id, user_exist
 
 users_router = APIRouter(prefix='/users', tags=['users'])
@@ -61,7 +61,17 @@ def get_user(user_id: int, session: session_db):
 
 
 @users_router.delete('/{user_id}', status_code=204)
-def delete_user(user_id: int, session: session_db):
-    user = get_user_by_id(session, user_id)
-    session.delete(user)
-    session.commit()
+def delete_user(
+    user_id: int,
+    session: session_db,
+    loged_user=Depends(get_current_user)
+    ):
+    if loged_user.id == user_id:
+        user = get_user_by_id(session, user_id)
+        session.delete(user)
+        session.commit()
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Permissão negada"
+        )
