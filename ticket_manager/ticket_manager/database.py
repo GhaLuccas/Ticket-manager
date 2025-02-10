@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 
 from ticket_manager.settings import Settings
 
+settings = Settings()
+
 engine = create_engine(Settings().DATABASE_URL)
 
 
