@@ -49,5 +49,5 @@ class TicketListSchema(BaseModel):
 
 
 class Token(BaseModel):
-    acces_token = str
+    acces_token: str
     token_type: str
