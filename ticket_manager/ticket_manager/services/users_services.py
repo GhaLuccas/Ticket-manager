@@ -5,7 +5,7 @@ from ticket_manager.models import Manager
 from ticket_manager.schema import UserManagerSchema
 
 
-def user_exist(db: session_db, user: UserManagerSchema):
+def ensure_user_exist(db: session_db, user: UserManagerSchema):
     exist_user = db.query(Manager).filter(
         Manager.username == user.username
         ).first()

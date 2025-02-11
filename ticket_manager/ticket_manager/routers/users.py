@@ -5,12 +5,15 @@ from sqlalchemy.exc import IntegrityError
 from ticket_manager.database import session_db
 from ticket_manager.models import Manager
 from ticket_manager.schema import (
-    UserListPublicShema,
+    UserListPublic,
     UserManagerSchema,
     UserPublicSchema,
 )
-from ticket_manager.security import get_current_user, hash_password
-from ticket_manager.services.users_services import get_user_by_id, user_exist
+from ticket_manager.security import hash_password, login_required
+from ticket_manager.services.users_services import (
+    ensure_user_exist,
+    get_user_by_id,
+)
 
 users_router = APIRouter(prefix='/users', tags=['users'])
 
@@ -22,7 +25,7 @@ users_router = APIRouter(prefix='/users', tags=['users'])
     )
 def create_user(user: UserManagerSchema, session: session_db):
 
-    new_user = user_exist(session, user)
+    new_user = ensure_user_exist(session, user)
 
     try:
         new_user = Manager(
@@ -42,29 +45,36 @@ def create_user(user: UserManagerSchema, session: session_db):
 
 @users_router.get(
     '/',
-    response_model=UserListPublicShema,
+    response_model=UserListPublic,
     status_code=200)
-def get_users(session: session_db):
+def get_users(session: session_db, loged_user=Depends(login_required)):
     users = session.query(Manager).all()
-    return {
-        'userlist': [
-            {'id': user.id, 'username': user.username} for user in users]}
+    return UserListPublic(
+        userlist=[
+            UserPublicSchema(
+                id=user.id, username=user.username) for user in users
+            ]
+    )
 
 
 @users_router.get(
     '/{user_id}',
     response_model=UserPublicSchema,
     status_code=200)
-def get_user(user_id: int, session: session_db):
+def get_user(
+    user_id: int,
+    session: session_db,
+    loged_user=Depends(login_required)
+    ):
     user = get_user_by_id(session, user_id)
-    return {'username': user.username, 'id': user.id}
+    return UserPublicSchema(id=user.id, username=user.username)
 
 
 @users_router.delete('/{user_id}', status_code=204)
 def delete_user(
     user_id: int,
     session: session_db,
-    loged_user=Depends(get_current_user)
+    loged_user=Depends(login_required)
     ):
     if loged_user.id == user_id:
         user = get_user_by_id(session, user_id)

@@ -15,7 +15,7 @@ class UserPublicSchema(BaseModel):
     username: str
 
 
-class UserListPublicShema(BaseModel):
+class UserListPublic(BaseModel):
     userlist: list[UserPublicSchema]
 
 
@@ -25,13 +25,13 @@ class ClientSchema(BaseModel):
     phone: str | None = Field(default=None)
 
 
-class ClientPublicShcema(ClientSchema):
+class ClientPublic(ClientSchema):
     id: int
     model_config = ConfigDict(from_attributes=True)
 
 
 class ClientList(BaseModel):
-    clientlist: list[ClientPublicShcema]
+    clientlist: list[ClientPublic]
 
 
 class TicketSchema(BaseModel):

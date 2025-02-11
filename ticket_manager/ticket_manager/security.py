@@ -37,7 +37,7 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-def get_current_user(
+def login_required(
     db: session_db,
     token: str = Depends(login_required)
 ) -> Manager:
