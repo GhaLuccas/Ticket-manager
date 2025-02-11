@@ -66,8 +66,12 @@ class Ticket:
     author_id: Mapped[int] = mapped_column(ForeignKey("managers.id"))
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
     problem: Mapped[str] = mapped_column(unique=False)
-    solution: Mapped[str] = mapped_column(unique=False)
-    state: Mapped[TicketState] = mapped_column(SQLAlchemyEnum(TicketState))
+    solution: Mapped[Optional[str]] = mapped_column(unique=False, default=None)
+    state: Mapped[TicketState] = mapped_column(
+        SQLAlchemyEnum(TicketState),
+        init=False,
+        default=TicketState.on_going
+    )
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now(), default=datetime.utcnow
     )
