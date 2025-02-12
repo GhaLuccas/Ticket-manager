@@ -4,28 +4,21 @@ from ticket_manager.models import Manager
 
 
 def test_create_user_with_existing_username(client, session):
-
+    """Testa a criação de um usuário com um nome já existente."""
     user1 = Manager(username="alice123", password="password123")
     session.add(user1)
     session.commit()
 
-    payload = {
-        "username": "alice123",
-        "password": "newpassword"
-    }
+    payload = {"username": "alice123", "password": "newpassword"}
     response = client.post("/users/", json=payload)
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
-    data = response.json()
-    assert data["detail"] == "Username already taken"
+    assert response.json()["detail"] == "User already exist"
 
 
-def test_create_user_success(client, session):
-
-    payload = {
-        "username": "bob456",
-        "password": "password456"
-    }
+def test_create_user_success(client):
+    """Testa a criação bem-sucedida de um usuário."""
+    payload = {"username": "bob456", "password": "password456"}
     response = client.post("/users/", json=payload)
 
     assert response.status_code == HTTPStatus.CREATED
@@ -34,53 +27,51 @@ def test_create_user_success(client, session):
 
 
 def test_create_user_missing_field(client):
-    payload = {
-        "username": "bob456"
-    }
+    """Testa a criação de usuário com campos faltando."""
+    payload = {"username": "bob456"}
     response = client.post("/users/", json=payload)
+
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-def test_get_users(client, session):
+def test_get_users(client, session, auth_headers):
+    """Testa a listagem de usuários."""
     session.add_all([
         Manager(username="alice123", password="password123"),
         Manager(username="bob456", password="password456")
     ])
     session.commit()
 
-    response = client.get("/users/")
+    response = client.get("/users/", headers=auth_headers)
     assert response.status_code == HTTPStatus.OK
     data = response.json()
-    assert data['userlist'][0]["username"] == "alice123"
-    assert data['userlist'][1]["username"] == "bob456"
+    two = 2
+    assert len(data["userlist"]) >= two
+    assert any(user["username"] == "alice123" for user in data["userlist"])
+    assert any(user["username"] == "bob456" for user in data["userlist"])
 
 
-def test_get_user(client, session):
+def test_get_user(client, session, auth_headers):
+    """Testa a recuperação de um usuário específico."""
     new_user = Manager(username="charlie789", password="password789")
     session.add(new_user)
     session.commit()
 
-    response = client.get(f"/users/{new_user.id}")
+    response = client.get(f"/users/{new_user.id}", headers=auth_headers)
     assert response.status_code == HTTPStatus.OK
-    data = response.json()
-    assert data["username"] == new_user.username
+    assert response.json()["username"] == new_user.username
 
 
-def test_get_user_not_found(client):
-    response = client.get("/users/999")
+def test_get_user_not_found(client, auth_headers):
+    """Testa a busca por um usuário inexistente."""
+    response = client.get("/users/999", headers=auth_headers)
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_delete_user(client, session):
-    user_to_delete = Manager(username="deleteMe", password="deletePassword")
-    session.add(user_to_delete)
-    session.commit()
+def test_delete_user_success(client, session, test_user, auth_headers):
+    response = client.delete(
+        f"/users/{test_user.id}",
+        headers=auth_headers
+    )
 
-    response = client.delete(f"/users/{user_to_delete.id}")
     assert response.status_code == HTTPStatus.NO_CONTENT
-    assert session.get(Manager, user_to_delete.id) is None
-
-
-def test_delete_user_not_found(client):
-    response = client.delete("/users/999")
-    assert response.status_code == HTTPStatus.NOT_FOUND

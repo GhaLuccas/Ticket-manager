@@ -5,7 +5,7 @@ from ticket_manager.models import Manager
 from ticket_manager.schema import UserManagerSchema
 
 
-def ensure_user_exist(db: session_db, user: UserManagerSchema):
+def ensure_user_exist_or_400(db: session_db, user: UserManagerSchema):
     exist_user = db.query(Manager).filter(
         Manager.username == user.username
         ).first()
@@ -18,14 +18,12 @@ def ensure_user_exist(db: session_db, user: UserManagerSchema):
             )
 
 
-def get_user_by_id(db: session_db, user_id: int):
-    user = db.query(
-        Manager).filter(Manager.id == user_id
-                        ).first()
+def get_user_by_id_or_404(db: session_db, user_id: int):
+    user = db.query(Manager).filter(Manager.id == user_id).first()
     if user:
         return user
     else:
         raise HTTPException(
             status_code=404,
-            detail='Not found'
+            detail='User not found'
         )

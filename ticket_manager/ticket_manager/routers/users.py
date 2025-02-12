@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 
@@ -11,8 +10,8 @@ from ticket_manager.schema import (
 )
 from ticket_manager.security import hash_password, login_required
 from ticket_manager.services.users_services import (
-    ensure_user_exist,
-    get_user_by_id,
+    ensure_user_exist_or_400,
+    get_user_by_id_or_404,
 )
 
 users_router = APIRouter(prefix='/users', tags=['users'])
@@ -25,7 +24,7 @@ users_router = APIRouter(prefix='/users', tags=['users'])
     )
 def create_user(user: UserManagerSchema, session: session_db):
 
-    new_user = ensure_user_exist(session, user)
+    new_user = ensure_user_exist_or_400(session, user)
 
     try:
         new_user = Manager(
@@ -66,7 +65,7 @@ def get_user(
     session: session_db,
     loged_user=Depends(login_required)
     ):
-    user = get_user_by_id(session, user_id)
+    user = get_user_by_id_or_404(session, user_id)
     return UserPublicSchema(id=user.id, username=user.username)
 
 
@@ -74,10 +73,9 @@ def get_user(
 def delete_user(
     user_id: int,
     session: session_db,
-    loged_user=Depends(login_required)
-    ):
+    loged_user=Depends(login_required)):
     if loged_user.id == user_id:
-        user = get_user_by_id(session, user_id)
+        user = get_user_by_id_or_404(session, user_id)
         session.delete(user)
         session.commit()
     else:
