@@ -34,10 +34,16 @@ class ClientList(BaseModel):
     clientlist: list[ClientPublic]
 
 
+class TicketCreateSchema(BaseModel):
+    client_id: int
+    problem: str
+    solution: str | None = None
+
+
 class TicketSchema(BaseModel):
     id: int
-    author: UserManagerSchema
-    client: ClientSchema
+    author: UserPublicSchema
+    client: ClientPublic
     problem: str
     solution: str | None
     state: TicketState
@@ -45,13 +51,7 @@ class TicketSchema(BaseModel):
     resolved_at: datetime | None
 
     class Config:
-        orm_mode = True
-
-
-class TicketCreateSchema(BaseModel):
-    client_id: int
-    problem: str
-    solution: str | None = None
+        from_attributes = True
 
 
 class TicketListSchema(BaseModel):

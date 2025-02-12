@@ -11,20 +11,20 @@ ticket_router = APIRouter(prefix='/tickets', tags=['tickets'])
 
 @ticket_router.post('/', response_model=TicketSchema)
 def create_ticket(
-    ticket_data: TicketCreateSchema,
+    form: TicketCreateSchema,
     db: session_db,
-    current_user: Manager = Depends(login_required)
+    loged_user: Manager = Depends(login_required)
 ):
-    client = db.query(Client).filter(
-        Client.id == ticket_data.client_id).first()
+    client = db.query(Client).filter(Client.id == form.client_id).first()
+
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
 
     new_ticket = Ticket(
-        author_id=current_user.id,
+        author_id=loged_user.id,
         client_id=client.id,
-        problem=ticket_data.problem,
-        solution=ticket_data.solution
+        problem=form.problem,
+        solution=form.solution
     )
 
     db.add(new_ticket)

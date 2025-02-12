@@ -64,8 +64,12 @@ class Ticket:
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
     problem: Mapped[str] = mapped_column(unique=False)
 
-    author: Mapped["Manager"] = relationship(back_populates="tickets")
-    client: Mapped["Client"] = relationship(back_populates="tickets")
+    author: Mapped["Manager"] = relationship(
+        back_populates="tickets",
+        init=False)
+    client: Mapped["Client"] = relationship(
+        back_populates="tickets",
+        init=False)
 
     resolved_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     solution: Mapped[Optional[str]] = mapped_column(default=None)
