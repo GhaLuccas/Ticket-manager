@@ -40,6 +40,11 @@ class TicketCreateSchema(BaseModel):
     solution: str | None = None
 
 
+class TicketUpdateSchema(BaseModel):
+    problem: str | None = None
+    solution: str | None = None
+
+
 class TicketSchema(BaseModel):
     id: int
     author: UserPublicSchema
