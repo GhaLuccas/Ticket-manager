@@ -35,13 +35,23 @@ class ClientList(BaseModel):
 
 
 class TicketSchema(BaseModel):
+    id: int
     author: UserManagerSchema
     client: ClientSchema
     problem: str
     solution: str | None
     state: TicketState
-    created_at: datetime = datetime.now()
-    resolved_at: datetime | None = None
+    created_at: datetime
+    resolved_at: datetime | None
+
+    class Config:
+        orm_mode = True
+
+
+class TicketCreateSchema(BaseModel):
+    client_id: int
+    problem: str
+    solution: str | None = None
 
 
 class TicketListSchema(BaseModel):
