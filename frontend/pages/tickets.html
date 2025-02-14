@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MasterShop - Tickets</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
+    rel="stylesheet"
+  />
+  <!-- CSS personalizado -->
+  <link rel="stylesheet" href="../styles/tickets.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand mb-0 h1">MasterShop - Tickets</span>
+    <button class="btn btn-outline-light" id="logoutButton">Sair</button>
+  </nav>
+
+  <!-- Tickets List -->
+  <div class="container mt-3">
+    <h2 class="text-center mb-3">Tickets</h2>
+    <ul id="ticketList" class="list-group"></ul>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JavaScript personalizado -->
+  <script>
+    // Função para carregar os tickets
+    async function fetchTickets() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = 'login.html'; // Redireciona se não houver token
+          return;
+        }
+
+        const response = await fetch('http://localhost:8000/tickets/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao carregar tickets');
+        }
+
+        const data = await response.json();
+        const ticketList = document.getElementById('ticketList');
+
+        // Limpa a lista antes de adicionar novos itens
+        ticketList.innerHTML = '';
+
+        data.ticket_list.forEach((ticket) => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item ticket-item';
+          li.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">${ticket.problem}</h6>
+                <small class="text-muted">Autor: ${ticket.author.username}</small>
+                <small class="text-muted d-block">${ticket.solution || 'Sem solução ainda'}</small>
+              </div>
+              <span class="badge ${ticket.solution ? 'bg-success' : 'bg-warning'}">
+                <i class="bi ${ticket.solution ? 'bi-check-circle' : 'bi-exclamation-triangle'}"></i>
+                ${ticket.solution ? 'Resolvido' : 'Pendente'}
+              </span>
+            </div>
+          `;
+          ticketList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao carregar tickets.');
+      }
+    }
+
+    // Função para logout
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    });
+
+    // Carrega os tickets ao abrir a página
+    fetchTickets();
+  </script>
+</body>
+</html>
