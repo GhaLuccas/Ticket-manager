@@ -92,10 +92,19 @@ def delete_ticket_by_id(
 @ticket_router.get('/', response_model=TicketListSchema)
 def get_all_tickets(
     db: session_db,
+    search_term: str = None,  
     logged_user: Manager = Depends(login_required)
 ):
-    # Busca todos os tickets no banco de dados
-    tickets = db.query(Ticket).all()
+    query = db.query(Ticket)
+
+    # Filtra os tickets com base no termo de pesquisa
+    if search_term:
+        query = query.filter(
+            (Ticket.client.ilike(f'%{search_term}%')) |
+            (Ticket.client.ilike(f'%{search_term}%'))
+        )
+
+    tickets = query.all()
 
     # Converte cada ticket para o formato TicketSchema
     ticket_list = [

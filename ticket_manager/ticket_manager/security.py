@@ -14,7 +14,7 @@ from ticket_manager.settings import Settings
 pwd_hash = PasswordHash.recommended()
 settings = Settings()
 
-login_required = OAuth2PasswordBearer(tokenUrl='/auth/token')
+Ologin_required = OAuth2PasswordBearer(tokenUrl='/auth/token')
 
 
 def hash_password(pwd: str):
@@ -39,7 +39,7 @@ def create_access_token(data: dict):
 
 def login_required(
     db: session_db,
-    token: str = Depends(login_required)
+    token: str = Depends(Ologin_required)
 ) -> Manager:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
