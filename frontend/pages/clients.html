@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MasterShop - Clientes</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
+    rel="stylesheet"
+  />
+  <!-- CSS personalizado -->
+  <link rel="stylesheet" href="../styles/clients.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand mb-0 h1">MasterShop - Clientes</span>
+    <button class="btn btn-outline-light" id="logoutButton">Sair</button>
+  </nav>
+
+  <!-- Clients List -->
+  <div class="container mt-3">
+    <h2 class="text-center mb-3">Clientes</h2>
+    <button class="btn btn-primary mb-3" id="addClientButton">registrar cliente</button>
+    <button id="ticketsButton" onclick="window.location.href='tickets.html'">tickets</button>
+    <ul id="clientList" class="list-group"></ul>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JavaScript personalizado -->
+  <script>
+    // Função para carregar os clientes
+    async function fetchClients() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = 'login.html'; // Redireciona se não houver token
+          return;
+        }
+
+        const response = await fetch('http://localhost:8000/clients/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao carregar clientes');
+        }
+
+        const data = await response.json();
+        const clientList = document.getElementById('clientList');
+
+        // Limpa a lista antes de adicionar novos itens
+        clientList.innerHTML = '';
+
+        data.clientlist.forEach((client) => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item client-item';
+          li.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">${client.name}</h6>
+                <small class="text-muted">Empresa: ${client.company_name || 'Não cadastrado'}</small>
+                <div>
+                    <small class="text-muted">Telefone: ${client.phone || 'Não cadastrado'}</small>
+                </div>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewClient(${client.id})">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteClient(${client.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          `;
+          clientList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao carregar clientes.');
+      }
+    }
+
+    // Função para redirecionar para a página de adicionar cliente
+    document.getElementById('addClientButton').addEventListener('click', () => {
+      window.location.href = 'client-details.html';
+    });
+
+    // Função para visualizar um cliente
+    function viewClient(clientId) {
+      window.location.href = `client-details.html?id=${clientId}`;
+    }
+
+    // Função para deletar um cliente
+    async function deleteClient(clientId) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = 'login.html'; // Redireciona se não houver token
+          return;
+        }
+
+        const response = await fetch(`http://localhost:8000/clients/${clientId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao deletar cliente');
+        }
+
+        // Recarrega a lista de clientes após deletar
+        fetchClients();
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao deletar cliente.');
+      }
+    }
+
+    // Função para logout
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    });
+
+    // Carrega os clientes ao abrir a página
+    fetchClients();
+  </script>
+</body>
+</html>

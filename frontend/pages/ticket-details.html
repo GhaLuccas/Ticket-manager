@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MasterShop - Detalhes do Ticket</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
+    rel="stylesheet"
+  />
+  <!-- CSS personalizado -->
+  <link rel="stylesheet" href="../styles/tickets.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand mb-0 h1">MasterShop - Detalhes do Ticket</span>
+    <button class="btn btn-outline-light" id="logoutButton">Sair</button>
+  </nav>
+
+  <!-- Ticket Details Form -->
+  <div class="container mt-3">
+    <h2 class="text-center mb-3">Detalhes do Ticket</h2>
+    <form id="ticketForm">
+      <div class="mb-3">
+        <label for="problem" class="form-label">Problema</label>
+        <textarea class="form-control" id="problem" rows="3" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="solution" class="form-label">Solução</label>
+        <textarea class="form-control" id="solution" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Salvar</button>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JavaScript personalizado -->
+  <script>
+    const ticketId = new URLSearchParams(window.location.search).get('id');
+
+    // Função para carregar os detalhes do ticket
+    async function fetchTicketDetails() {
+      if (!ticketId) return; // Se não houver ID, é um novo ticket
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = 'login.html'; // Redireciona se não houver token
+          return;
+        }
+
+        const response = await fetch(`http://localhost:8000/tickets/${ticketId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao carregar detalhes do ticket');
+        }
+
+        const ticket = await response.json();
+        document.getElementById('problem').value = ticket.problem;
+        document.getElementById('solution').value = ticket.solution || '';
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao carregar detalhes do ticket.');
+      }
+    }
+
+    // Função para salvar ou atualizar o ticket
+    document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const ticketData = {
+        problem: document.getElementById('problem').value,
+        solution: document.getElementById('solution').value,
+      };
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = 'login.html'; // Redireciona se não houver token
+          return;
+        }
+
+        const url = ticketId ? `http://localhost:8000/tickets/${ticketId}` : 'http://localhost:8000/tickets/';
+        const method = ticketId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(ticketData),
+        });
+
+        if (!response.ok) {
+          throw new Error(ticketId ? 'Erro ao atualizar ticket' : 'Erro ao criar ticket');
+        }
+
+        window.location.href = 'tickets.html'; // Redireciona para a lista de tickets
+      } catch (error) {
+        console.error('Erro:', error);
+        alert(ticketId ? 'Erro ao atualizar ticket' : 'Erro ao criar ticket');
+      }
+    });
+
+    // Função para logout
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    });
+
+    // Carrega os detalhes do ticket ao abrir a página
+    fetchTicketDetails();
+  </script>
+</body>
+</html>
