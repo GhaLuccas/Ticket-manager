@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import joinedload  # Adicione esta importação
+from sqlalchemy import or_  # Adicione esta importação
 
 from ticket_manager.database import session_db
 from ticket_manager.models import Client, Manager, Ticket
@@ -18,6 +20,49 @@ from ticket_manager.services.ticket_services import (
 
 ticket_router = APIRouter(prefix='/tickets', tags=['tickets'])
 
+@ticket_router.get('/', response_model=TicketListSchema)
+def get_all_tickets(
+    db: session_db,
+    search_term: str = None,  
+    logged_user: Manager = Depends(login_required)
+):
+    query = db.query(Ticket).options(joinedload(Ticket.client))  # Carrega os clientes junto com os tickets
+
+    # Filtra os tickets com base no termo de pesquisa
+    if search_term:
+        query = query.join(Client).filter(  # Junta a tabela Ticket com a tabela Client
+            or_(
+                Client.name.ilike(f'%{search_term}%'),  # Busca pelo nome do cliente
+                Client.company_name.ilike(f'%{search_term}%')  # Busca pelo nome da empresa
+            )
+        )
+
+    tickets = query.all()
+
+    # Converte cada ticket para o formato TicketSchema
+    ticket_list = [
+        TicketSchema(
+            id=ticket.id,
+            author=UserPublicSchema(
+                id=ticket.author.id, username=ticket.author.username
+            ),
+            client=ClientPublic(
+                id=ticket.client.id,
+                name=ticket.client.name,
+                company_name=ticket.client.company_name,
+                phone=ticket.client.phone
+            ),
+            problem=ticket.problem,
+            solution=ticket.solution,
+            state=ticket.state,
+            created_at=ticket.created_at,
+            resolved_at=ticket.resolved_at
+        )
+        for ticket in tickets
+    ]
+
+    # Retorna a lista de tickets no formato TicketListSchema
+    return TicketListSchema(ticket_list=ticket_list)
 
 @ticket_router.post('/', response_model=TicketSchema)
 def create_ticket(
@@ -89,44 +134,3 @@ def delete_ticket_by_id(
     return {"message": "Ticket deleted successfully"}
 
 
-@ticket_router.get('/', response_model=TicketListSchema)
-def get_all_tickets(
-    db: session_db,
-    search_term: str = None,  
-    logged_user: Manager = Depends(login_required)
-):
-    query = db.query(Ticket)
-
-    # Filtra os tickets com base no termo de pesquisa
-    if search_term:
-        query = query.filter(
-            (Ticket.client.ilike(f'%{search_term}%')) |
-            (Ticket.client.ilike(f'%{search_term}%'))
-        )
-
-    tickets = query.all()
-
-    # Converte cada ticket para o formato TicketSchema
-    ticket_list = [
-        TicketSchema(
-            id=ticket.id,
-            author=UserPublicSchema(
-                id=ticket.author.id, username=ticket.author.username
-                ),
-            client=ClientPublic(
-                id=ticket.client.id,
-                name=ticket.client.name,
-                company_name=ticket.client.company_name,
-                phone=ticket.client.phone
-            ),
-            problem=ticket.problem,
-            solution=ticket.solution,
-            state=ticket.state,
-            created_at=ticket.created_at,
-            resolved_at=ticket.resolved_at
-        )
-        for ticket in tickets
-    ]
-
-    # Retorna a lista de tickets no formato TicketListSchema
-    return TicketListSchema(ticket_list=ticket_list)
