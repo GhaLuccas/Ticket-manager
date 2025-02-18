@@ -14,6 +14,12 @@ from sqlalchemy.orm import (
 mapper_registry = registry()
 
 
+class TicketState(str, Enum):
+    done = 'done'
+    to_fix = 'To-fix'
+    on_going = 'on_going'
+
+
 @mapper_registry.mapped_as_dataclass
 class Manager:
     __tablename__ = "managers"
@@ -27,7 +33,7 @@ class Manager:
 
     tickets: Mapped[List["Ticket"]] = relationship(
         back_populates="author", init=False
-        )
+    )
 
 
 @mapper_registry.mapped_as_dataclass
@@ -44,14 +50,8 @@ class Client:
     phone: Mapped[str] = mapped_column(unique=False)
 
     tickets: Mapped[List["Ticket"]] = relationship(
-        back_populates="client", init=False
-        )
-
-
-class TicketState(str, Enum):
-    done = 'done'
-    to_fix = 'To-fix'
-    on_going = 'on_going'
+        back_populates="client", init=False, cascade="all, delete-orphan"
+    )
 
 
 @mapper_registry.mapped_as_dataclass
@@ -65,11 +65,11 @@ class Ticket:
     problem: Mapped[str] = mapped_column(unique=False)
 
     author: Mapped["Manager"] = relationship(
-        back_populates="tickets",
-        init=False)
+        back_populates="tickets", init=False
+    )
     client: Mapped["Client"] = relationship(
-        back_populates="tickets",
-        init=False)
+        back_populates="tickets", init=False
+    )
 
     resolved_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     solution: Mapped[Optional[str]] = mapped_column(default=None)

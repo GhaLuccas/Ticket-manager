@@ -122,8 +122,8 @@ def search_clients(
 def delete_client(
     session: session_db,
     client_id: int,
-    loged_user=Depends(login_required),
-    ):
+    logged_user=Depends(login_required),
+):
     client = session.get(Client, client_id)
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
