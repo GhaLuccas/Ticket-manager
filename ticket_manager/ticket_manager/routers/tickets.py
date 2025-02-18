@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import joinedload  # Adicione esta importação
 from sqlalchemy import or_  # Adicione esta importação
+from sqlalchemy.orm import joinedload  # Adicione esta importação
 
 from ticket_manager.database import session_db
 from ticket_manager.models import Client, Manager, Ticket
@@ -20,20 +20,21 @@ from ticket_manager.services.ticket_services import (
 
 ticket_router = APIRouter(prefix='/tickets', tags=['tickets'])
 
+
 @ticket_router.get('/', response_model=TicketListSchema)
 def get_all_tickets(
     db: session_db,
-    search_term: str = None,  
+    search_term: str = None,
     logged_user: Manager = Depends(login_required)
 ):
-    query = db.query(Ticket).options(joinedload(Ticket.client))  # Carrega os clientes junto com os tickets
+    query = db.query(Ticket).options(joinedload(Ticket.client))
 
     # Filtra os tickets com base no termo de pesquisa
     if search_term:
-        query = query.join(Client).filter(  # Junta a tabela Ticket com a tabela Client
+        query = query.join(Client).filter(
             or_(
-                Client.name.ilike(f'%{search_term}%'),  # Busca pelo nome do cliente
-                Client.company_name.ilike(f'%{search_term}%')  # Busca pelo nome da empresa
+                Client.name.ilike(f'%{search_term}%'),
+                Client.company_name.ilike(f'%{search_term}%')
             )
         )
 
@@ -63,6 +64,7 @@ def get_all_tickets(
 
     # Retorna a lista de tickets no formato TicketListSchema
     return TicketListSchema(ticket_list=ticket_list)
+
 
 @ticket_router.post('/', response_model=TicketSchema)
 def create_ticket(
@@ -132,5 +134,3 @@ def delete_ticket_by_id(
     db.commit()
 
     return {"message": "Ticket deleted successfully"}
-
-
