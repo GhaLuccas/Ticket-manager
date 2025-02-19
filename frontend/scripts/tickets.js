@@ -36,13 +36,13 @@
           li.innerHTML = `
             <div class="d-flex justify-content-between align-items-center">
               <div>
-                <h6 class="mb-1">Cliente: ${ticket.client.name}</h6>
-                <h6 class="mb-1">Empresa: ${ticket.client.company_name || 'Não cadastrado'}</h6>
-                <h6 class="mb-1">Chamado: ${ticket.problem}</h6>
-                <small class="text-muted">Autor: ${ticket.author.username}</small>
-                <small class="text-muted d-block">Solução: ${ticket.solution || 'Sem solução ainda'}</small>
-                <!-- Exibe o status do ticket -->
-                <div class="mt-2">
+                <h6 class="mb-1"><strong>Cliente:</strong> ${ticket.client.name}</h6>
+                <h6 class="mb-1"><strong>Empresa:</strong> ${ticket.client.company_name || 'Não cadastrado'}</h6>
+                <h6 class="mb-1"><strong>Chamado:</strong> ${ticket.problem}</h6>
+                <small class="text-muted"><strong>Autor:</strong> ${ticket.author.username}</small>
+                <small class="text-muted d-block"><strong>Solução:</strong> ${ticket.solution || 'Sem solução ainda'}</small>
+                <div class="mt-1">
+                  <div><small class="text-muted"><strong>Criado em:</strong> ${formatDate(ticket.created_at)}</small></div>
                   <span class="badge ${getStatusClass(ticket.state)}" onclick="changeTicketStatus(${ticket.id}, '${ticket.state}')">${ticket.state}</span>
                 </div>
               </div>
@@ -194,3 +194,14 @@
       filterTicketsByState(e.target.value);
     });
   });
+
+  function formatDate(isoDate) {
+    const date = new Date(isoDate);
+    const day = String(date.getDate()).padStart(2, '0'); // Dia (2 dígitos)
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês (2 dígitos)
+    const year = date.getFullYear(); // Ano
+    const hours = String(date.getHours()).padStart(2, '0'); // Hora (2 dígitos)
+    const minutes = String(date.getMinutes()).padStart(2, '0'); // Minutos (2 dígitos)
+  
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  }
