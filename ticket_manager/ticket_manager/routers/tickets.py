@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import or_  # Adicione esta importação
-from sqlalchemy.orm import joinedload  # Adicione esta importação
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
 
 from ticket_manager.database import session_db
-from ticket_manager.models import Client, Manager, Ticket
+from ticket_manager.models import Client, Manager, Ticket, TicketState
 from ticket_manager.schema import (
     ClientPublic,
     TicketCreateSchema,
@@ -24,12 +24,13 @@ ticket_router = APIRouter(prefix='/tickets', tags=['tickets'])
 @ticket_router.get('/', response_model=TicketListSchema)
 def get_all_tickets(
     db: session_db,
-    search_term: str = None,
+    search_term: str = Query(None, description="Termo de pesquisa"),
+    state: TicketState = Query(None, description="Filtrar por estado"),
     logged_user: Manager = Depends(login_required)
 ):
     query = db.query(Ticket).options(joinedload(Ticket.client))
 
-    # Filtra os tickets com base no termo de pesquisa
+    # Filtra por termo de pesquisa (se fornecido)
     if search_term:
         query = query.join(Client).filter(
             or_(
@@ -38,9 +39,15 @@ def get_all_tickets(
             )
         )
 
+    # Filtra por estado (se fornecido)
+    if state:
+        query = query.filter(Ticket.state == state)
+
+    # Ordena os tickets pelos mais recentes primeiro
+    query = query.order_by(Ticket.created_at.desc())
+
     tickets = query.all()
 
-    # Converte cada ticket para o formato TicketSchema
     ticket_list = [
         TicketSchema(
             id=ticket.id,
@@ -62,7 +69,6 @@ def get_all_tickets(
         for ticket in tickets
     ]
 
-    # Retorna a lista de tickets no formato TicketListSchema
     return TicketListSchema(ticket_list=ticket_list)
 
 
@@ -104,6 +110,8 @@ def update_ticket(
         existing_ticket.problem = form.problem
     if form.solution is not None:
         existing_ticket.solution = form.solution
+    if form.state is not None:
+        existing_ticket.state = form.state
 
     db.commit()
     db.refresh(existing_ticket)

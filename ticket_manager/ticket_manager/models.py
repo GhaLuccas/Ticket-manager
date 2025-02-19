@@ -16,7 +16,7 @@ mapper_registry = registry()
 
 class TicketState(str, Enum):
     done = 'done'
-    to_fix = 'To-fix'
+    to_fix = 'to_fix'
     on_going = 'on_going'
 
 

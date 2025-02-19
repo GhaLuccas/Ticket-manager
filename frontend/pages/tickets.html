@@ -34,7 +34,15 @@
         <button class="btn btn-primary me-2" id="addTicketButton">Adicionar Ticket</button>
         <button class="btn btn-secondary" id="clientsButton">Clientes</button>
       </div>
-      <input type="text" class="form-control w-50" id="searchInput" placeholder="Pesquisar tickets...">
+      <div>
+        <input type="text" class="form-control me-2" id="searchInput" placeholder="Pesquisar tickets...">
+        <select class="form-select" id="stateFilter">
+          <option value="">Todos</option>
+          <option value="on_going">Em andamento</option>
+          <option value="to_fix">Para corrigir</option>
+          <option value="done">Concluído</option>
+        </select>
+      </div>
     </div>
     <ul id="ticketList" class="list-group"></ul>
   </div>
@@ -42,118 +50,6 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- JavaScript personalizado -->
-  <script>
-    // Função para carregar os tickets
-    async function fetchTickets(searchTerm = '') {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          window.location.href = 'login.html'; // Redireciona se não houver token
-          return;
-        }
-
-        const response = await fetch(`http://localhost:8000/tickets/?search_term=${searchTerm}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Erro ao carregar tickets');
-        }
-
-        const data = await response.json();
-        const ticketList = document.getElementById('ticketList');
-
-        // Limpa a lista antes de adicionar novos itens
-        ticketList.innerHTML = '';
-
-        data.ticket_list.forEach((ticket) => {
-          const li = document.createElement('li');
-          li.className = 'list-group-item ticket-item';
-          li.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="mb-1">Cliente: ${ticket.client.name}</h6>
-                <h6 class="mb-1">Empresa: ${ticket.client.company_name || 'Não cadastrado'}</h6>
-                <h6 class="mb-1">Chamado: ${ticket.problem}</h6>
-                <small class="text-muted">Autor: ${ticket.author.username}</small>
-                <small class="text-muted d-block">Solução: ${ticket.solution || 'Sem solução ainda'}</small>
-              </div>
-              <div>
-                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewTicket(${ticket.id})">
-                  <i class="bi bi-eye"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteTicket(${ticket.id})">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
-            </div>
-          `;
-          ticketList.appendChild(li);
-        });
-      } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao carregar tickets.');
-      }
-    }
-
-    // Função para redirecionar para a página de adicionar ticket
-    document.getElementById('addTicketButton').addEventListener('click', () => {
-      window.location.href = 'create-ticket.html';
-    });
-
-    // Função para redirecionar para a página de clientes
-    document.getElementById('clientsButton').addEventListener('click', () => {
-      window.location.href = 'clients.html';
-    });
-
-    // Função para visualizar um ticket
-    function viewTicket(ticketId) {
-      window.location.href = `ticket-details.html?id=${ticketId}`;
-    }
-
-    // Função para deletar um ticket
-    async function deleteTicket(ticketId) {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          window.location.href = 'login.html'; // Redireciona se não houver token
-          return;
-        }
-
-        const response = await fetch(`http://localhost:8000/tickets/${ticketId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Erro ao deletar ticket');
-        }
-
-        // Recarrega a lista de tickets após deletar
-        fetchTickets();
-      } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao deletar ticket.');
-      }
-    }
-
-    // Função para pesquisar tickets
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      fetchTickets(e.target.value);
-    });
-
-    // Função para logout
-    document.getElementById('logoutButton').addEventListener('click', () => {
-      localStorage.removeItem('token');
-      window.location.href = 'login.html';
-    });
-
-    // Carrega os tickets ao abrir a página
-    fetchTickets();
-  </script>
+  <script src="../scripts/tickets.js"></script>
 </body>
 </html>

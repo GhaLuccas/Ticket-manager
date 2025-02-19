@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -41,8 +42,9 @@ class TicketCreateSchema(BaseModel):
 
 
 class TicketUpdateSchema(BaseModel):
-    problem: str | None = None
-    solution: str | None = None
+    problem: Optional[str] = None
+    solution: Optional[str] = None
+    state: Optional[TicketState] = None  # Adicionado o campo state
 
 
 class TicketSchema(BaseModel):

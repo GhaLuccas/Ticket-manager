@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import or_, select
+from sqlalchemy import or_
 
 from ticket_manager.database import session_db
 from ticket_manager.models import Client
