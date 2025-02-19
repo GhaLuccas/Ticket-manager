@@ -90,32 +90,34 @@ def update_client(
 def search_clients(
     session: session_db,
     search_term: str | None = None,
-    loged_user=Depends(login_required)
-    ):
+    logged_user=Depends(login_required)
+):
+    query = session.query(Client)
 
+    # Filtra os clientes com base no termo de pesquisa
     if search_term:
-        query = select(Client).where(
+        query = query.filter(
             or_(
                 Client.name.ilike(f"%{search_term}%"),
                 Client.company_name.ilike(f"%{search_term}%")
             )
         )
-        clients = session.scalars(query).all()
-        if not clients:
-            raise HTTPException(
-                status_code=404,
-                detail="Nenhum cliente encontrado"
-                )
-        client_list = [
-            ClientPublic.model_validate(client) for client in clients
-            ]
-        return {'clientlist': client_list}
-    else:
-        clients = session.query(Client).all()
-        client_list = [
-            ClientPublic.model_validate(client) for client in clients
-            ]
-        return {'clientlist': client_list}
+
+    clients = query.all()
+
+    # Converte cada cliente para o formato ClientPublic
+    client_list = [
+        ClientPublic(
+            id=client.id,
+            name=client.name,
+            company_name=client.company_name,
+            phone=client.phone
+        )
+        for client in clients
+    ]
+
+    # Retorna a lista de clientes no formato ClientList
+    return {"clientlist": client_list}
 
 
 @clients_router.delete('/{client_id}', status_code=204)
