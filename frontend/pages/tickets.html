@@ -30,7 +30,10 @@
   <div class="container mt-3">
     <h2 class="text-center mb-3">Tickets</h2>
     <div class="d-flex justify-content-between mb-3">
-      <button class="btn btn-primary" id="addTicketButton">Adicionar Ticket</button>
+      <div>
+        <button class="btn btn-primary me-2" id="addTicketButton">Adicionar Ticket</button>
+        <button class="btn btn-secondary" id="clientsButton">Clientes</button>
+      </div>
       <input type="text" class="form-control w-50" id="searchInput" placeholder="Pesquisar tickets...">
     </div>
     <ul id="ticketList" class="list-group"></ul>
@@ -97,7 +100,12 @@
 
     // Função para redirecionar para a página de adicionar ticket
     document.getElementById('addTicketButton').addEventListener('click', () => {
-      window.location.href = 'ticket-details.html';
+      window.location.href = 'create-ticket.html';
+    });
+
+    // Função para redirecionar para a página de clientes
+    document.getElementById('clientsButton').addEventListener('click', () => {
+      window.location.href = 'clients.html';
     });
 
     // Função para visualizar um ticket

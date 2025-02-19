@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MasterShop - Criar Ticket</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
+    rel="stylesheet"
+  />
+  <!-- CSS personalizado -->
+  <link rel="stylesheet" href="../styles/tickets.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand mb-0 h1">MasterShop - Criar Ticket</span>
+    <button class="btn btn-outline-light" id="logoutButton">Sair</button>
+  </nav>
+
+  <!-- Formulário de Criação de Ticket -->
+  <div class="container mt-3">
+    <h2 class="text-center mb-3">Criar Novo Ticket</h2>
+    <form id="createTicketForm">
+      <div class="mb-3">
+        <label for="clientSelect" class="form-label">Selecione o Cliente</label>
+        <select class="form-select" id="clientSelect" required>
+          <option value="" disabled selected>Selecione um cliente...</option>
+          <!-- Os clientes serão carregados dinamicamente aqui -->
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="problem" class="form-label">Problema</label>
+        <textarea class="form-control" id="problem" rows="3" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="solution" class="form-label">Solução (opcional)</label>
+        <textarea class="form-control" id="solution" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Criar Ticket</button>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JavaScript personalizado -->
+  <script>
+    // Função para carregar os clientes cadastrados
+    async function fetchClients() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = 'login.html'; // Redireciona se não houver token
+          return;
+        }
+
+        const response = await fetch('http://localhost:8000/clients/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao carregar clientes');
+        }
+
+        const data = await response.json();
+        const clientSelect = document.getElementById('clientSelect');
+
+        // Limpa o dropdown antes de adicionar novos itens
+        clientSelect.innerHTML = '<option value="" disabled selected>Selecione um cliente...</option>';
+
+        // Adiciona cada cliente ao dropdown
+        data.clientlist.forEach((client) => {
+          const option = document.createElement('option');
+          option.value = client.id; // Usa o ID do cliente como valor
+          option.textContent = `${client.name} (${client.company_name || 'Sem empresa'})`;
+          clientSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao carregar clientes.');
+      }
+    }
+
+    // Função para criar um novo ticket
+    document.getElementById('createTicketForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const clientSelect = document.getElementById('clientSelect');
+      const ticketData = {
+        client_id: clientSelect.value, // Pega o ID do cliente selecionado
+        problem: document.getElementById('problem').value,
+        solution: document.getElementById('solution').value || null,
+      };
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = 'login.html'; // Redireciona se não houver token
+          return;
+        }
+
+        const response = await fetch('http://localhost:8000/tickets/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(ticketData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao criar ticket');
+        }
+
+        window.location.href = 'tickets.html'; // Redireciona para a lista de tickets
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao criar ticket.');
+      }
+    });
+
+    // Função para logout
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    });
+
+    // Carrega os clientes ao abrir a página
+    fetchClients();
+  </script>
+</body>
+</html>

@@ -29,8 +29,14 @@
   <!-- Clients List -->
   <div class="container mt-3">
     <h2 class="text-center mb-3">Clientes</h2>
-    <button class="btn btn-primary mb-3" id="addClientButton">registrar cliente</button>
-    <button id="ticketsButton" onclick="window.location.href='tickets.html'">tickets</button>
+    <!-- Grupo de botões e barra de pesquisa -->
+    <div class="d-flex justify-content-between mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary" id="addClientButton">Registrar Cliente</button>
+        <button class="btn btn-secondary" id="ticketsButton" onclick="window.location.href='tickets.html'">Tickets</button>
+      </div>
+      <input type="text" class="form-control w-50" id="searchInput" placeholder="Pesquisar clientes...">
+    </div>
     <ul id="clientList" class="list-group"></ul>
   </div>
 
@@ -39,7 +45,7 @@
   <!-- JavaScript personalizado -->
   <script>
     // Função para carregar os clientes
-    async function fetchClients() {
+    async function fetchClients(searchTerm = '') {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -47,7 +53,7 @@
           return;
         }
 
-        const response = await fetch('http://localhost:8000/clients/', {
+        const response = await fetch(`http://localhost:8000/clients/?search_term=${searchTerm}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -87,10 +93,7 @@
           `;
           clientList.appendChild(li);
         });
-      } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao carregar clientes.');
-      }
+      } catch (error) {}
     }
 
     // Função para redirecionar para a página de adicionar cliente
@@ -98,7 +101,7 @@
       window.location.href = 'client-details.html';
     });
 
-    // Função para visualizar um cliente
+    // Função para visualizar ou editar um cliente
     function viewClient(clientId) {
       window.location.href = `client-details.html?id=${clientId}`;
     }
@@ -130,6 +133,11 @@
         alert('Erro ao deletar cliente.');
       }
     }
+
+    // Função para pesquisar clientes
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      fetchClients(e.target.value);
+    });
 
     // Função para logout
     document.getElementById('logoutButton').addEventListener('click', () => {
