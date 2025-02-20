@@ -9,7 +9,7 @@
         }
 
         // Constrói a URL com base nos parâmetros
-        let url = `http://localhost:8000/tickets/?search_term=${searchTerm}`;
+        let url = `https://backend-ticket-manager.onrender.com/tickets/?search_term=${searchTerm}`;
         if (stateFilter) {
           url += `&state=${stateFilter}`;
         }
@@ -92,7 +92,7 @@
         return;
       }
   
-      const response = await fetch(`http://localhost:8000/tickets/${ticketId}`, {
+      const response = await fetch(`https://backend-ticket-manager.onrender.com/tickets/${ticketId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -123,7 +123,7 @@
       // Define o próximo estado com base no estado atual
       const nextState = getNextState(currentState);
   
-      const response = await fetch(`http://localhost:8000/tickets/${ticketId}`, {
+      const response = await fetch(`https://backend-ticket-manager.onrender.com/tickets/${ticketId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
