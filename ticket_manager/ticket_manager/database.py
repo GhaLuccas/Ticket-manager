@@ -8,7 +8,7 @@ from ticket_manager.settings import Settings
 
 settings = Settings()
 
-engine = create_engine(Settings().DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL)
 
 
 def get_session():
