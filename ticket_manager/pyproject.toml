@@ -8,13 +8,14 @@ packages = [{ include = "ticket_manager" }]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
-fastapi = "0.115.7"
+fastapi = "0.115.2"
 sqlalchemy = "2.0.37"
 pydantic-settings = "2.7.1"
 pwdlib = {extras = ["argon32"], version = "0.2.1"}
 python-multipart = "0.0.20"
 pyjwt = "2.10.1"
 tzdata = "2025.1"
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
