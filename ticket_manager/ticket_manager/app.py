@@ -1,6 +1,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from ticket_manager.routers import auth, clients, tickets, users
 
@@ -12,7 +13,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.mount("/", StaticFiles(directory="./frontend/pages", html=True), name="frontend")
 app.include_router(users.users_router)
 app.include_router(clients.clients_router)
 app.include_router(auth.auth_router)
