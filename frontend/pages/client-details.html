@@ -63,7 +63,7 @@
           return;
         }
 
-        const response = await fetch(`https://backend-ticket-manager.onrender.com//clients/${clientId}`, {
+        const response = await fetch(`https://backend-ticket-manager.onrender.com/clients/${clientId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -100,7 +100,7 @@
           return;
         }
 
-        const url = clientId ? `https://backend-ticket-manager.onrender.com//clients/${clientId}` : 'https://backend-ticket-manager.onrender.com//clients/';
+        const url = clientId ? `https://backend-ticket-manager.onrender.com/clients/${clientId}` : 'https://backend-ticket-manager.onrender.com/clients/';
         const method = clientId ? 'PUT' : 'POST';
 
         const response = await fetch(url, {
