@@ -1,9 +1,9 @@
 {
   "headers": {
-    "/**/*.css": {
+    "/styles/*.css": {
       "Content-Type": "text/css"
     },
-    "/**/*.js": {
+    "/scripts/*.js": {
       "Content-Type": "application/javascript"
     }
   }
