@@ -13,7 +13,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.mount("/", StaticFiles(directory="./frontend/pages", html=True), name="frontend")
+#app.mount("/", StaticFiles(directory="./frontend/pages", html=True), name="frontend")
 app.include_router(users.users_router)
 app.include_router(clients.clients_router)
 app.include_router(auth.auth_router)
